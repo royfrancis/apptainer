@@ -1,0 +1,165 @@
+---
+title: Apptainer
+subtitle: Quick guide to Apptainer/Singularity containers
+description: Containerized environments for HPC
+author: Roy Francis
+---
+
+Apptainer (formerly known as Singularity) is a free and open-source container platform that allows you to create and run applications in isolated images (also called “containers”) in a simple, portable, fast, and secure manner.
+
+It allows the creation of an isolated environment which contains software that is portable and reproducible. It is designed for HPC environments.
+
+Some features
+
+- It does not need admin rights (sudo) to run.
+- The container is run as the user running it
+- Apptainer images can be handled like regular files
+
+## Building images
+
+The general sytax is like this:
+
+*apptainer build {image} {source}*
+
+### Image
+
+Apptainer images can be stored in two different formats: a compressed and immutable (.sif) format or uncompressed and modifiable (sandbox) format.
+
+- sif (.sif)
+  - compressed
+  - read-only
+  - displayed as a file
+- sandbox (.simg)
+  - uncompressed
+  - modifiable
+  - displayed as a directory
+
+### Source
+
+Images can be built from a huge number of sources. Here are common sources:
+
+- URI beginning with library:// to build from the any container library
+- URI beginning with docker:// to build from docker hub
+- URI beginning with shub:// to build from singularity hub
+- Path to a existing container on your local machine
+- Path to a directory to build from a sandbox
+- Path to a Apptainer definition file
+
+### Examples
+
+```
+# build a sif from dockerhub
+apptainer build lolcow.sif docker://godlovedc/lolcow
+# build a sandbox from dockerhub
+apptainer build --sandbox lolcow.simg docker://godlovedc/lolcow
+# change simg to sif
+apptainer build lolcow.sif lolcow.simg/
+# build from definition file
+apptainer build lolcow.sif lolcow.def
+```
+
+The `--force` argument overwrites existing files.
+
+### Environment
+
+Some useful environment variables to control during build.
+
+```
+export APPTAINER_CACHEDIR=${PWD}/.apptainer-cache
+export APPTAINER_TMPDIR=${PWD}/.apptainer-temp
+mkdir -p $APPTAINER_CACHEDIR $APPTAINER_TMPDIR
+```
+
+### Other
+
+Converting docker image to apptainer sif
+
+```
+docker save 96364d28e2de -o ggsashimi.tar
+apptainer build --sandbox ggsashimi docker-archive://ggsashimi.tar
+apptainer build ggsashimi.sif ggsashimi
+```
+
+Custom remote repositories can be specified
+
+```
+apptainer remote add --no-login SylabsCloud cloud.sycloud.io
+apptainer remote list
+```
+
+## Definition
+
+Images can be built from definition files. These are blueprints to build an image similar to a Dockerfile. This is a text file with header and sections.
+
+### Header
+
+Defines the starting point for the image build. For example;
+
+```
+Bootstrap: docker
+From: debian:7
+```
+
+### Sections
+
+|Section|Description|
+|---|---|
+|`%setup`|Run on host after header|
+|`%files`|Copy files from host to container|
+|`%environment`|Define env variables used in container|
+|`%post`|Run in container after header|
+|`%runscript`|Run during apptainer run|
+|`%test`|Run a test script|
+|`%labels`|Adds labels to container. Available through apptainer inspect|
+|`%help`|Text description for users|
+
+## Running containers
+
+There are many different ways to run an apptainer image.
+
+- run: Runs command specified under %runscript
+- exec: Runs any custom command
+- shell: Enters the container for interactive use
+- instance start: Used to run container in the background
+
+## Bind and mounts
+
+Binds allow the container to access host files and folders.
+
+The following paths are automatically mounted to containers:
+
+- $HOME
+- $PWD
+- /tmp
+- /proc
+- /sys
+- /dev
+
+Bind is specified from host to container. This allows to read from host.
+
+`--bind /data:/mnt`
+
+`--bind` together with `--writable` to save changes back to host. In this case the mounted path in container must already exist.
+
+In practice, this depends on what the administrator has enabled on a specific cluster.
+
+## Environment and metadata
+
+apptainer inspect shows container definitions, labels etc
+
+`apptainer inspect --labels --runscript --test --environment --helpfile`
+
+`--cleanenv`/`-e` disables the transfer of host env into the container env
+
+## Tips
+
+- Do not use common binds for installation: /home, /tmp
+- Add help to provide the user with run instructions
+- Use a definition file for reproducibility
+
+## Acknowledgements
+
+- [Apptainer documentation](https://apptainer.org/docs/user/latest/)
+- [HSF Training](https://hsf-training.github.io/hsf-training-singularity-webpage/)
+- [Singularity on UPPMAX](https://pmitev.github.io/UPPMAX-Singularity-workshop)
+

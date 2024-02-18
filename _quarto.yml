@@ -1,0 +1,14 @@
+project:
+  type: website
+  output-dir: docs
+
+format:
+  html:
+    theme: pulse
+    title-block-banner: true
+    number-sections: true
+    toc: true
+    smooth-scroll: true
+    author: Roy Francis
+    date: last-modified
+    date-format: "DD-MMM-YYYY"
