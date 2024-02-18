@@ -1,0 +1,58 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Apptainer",
+    "section": "",
+    "text": "Apptainer (formerly known as Singularity) is a free and open-source container platform that allows you to create and run applications in isolated images (also called “containers”) in a simple, portable, fast, and secure manner.\nIt allows the creation of an isolated environment which contains software that is portable and reproducible. It is designed for HPC environments.\nSome features"
+  },
+  {
+    "objectID": "index.html#building-images",
+    "href": "index.html#building-images",
+    "title": "Apptainer",
+    "section": "1 Building images",
+    "text": "1 Building images\nThe general sytax is like this:\napptainer build {image} {source}\n\n1.1 Image\nApptainer images can be stored in two different formats: a compressed and immutable (.sif) format or uncompressed and modifiable (sandbox) format.\n\nsif (.sif)\n\ncompressed\nread-only\ndisplayed as a file\n\nsandbox (.simg)\n\nuncompressed\nmodifiable\ndisplayed as a directory\n\n\n\n\n1.2 Source\nImages can be built from a huge number of sources. Here are common sources:\n\nURI beginning with library:// to build from the any container library\nURI beginning with docker:// to build from docker hub\nURI beginning with shub:// to build from singularity hub\nPath to a existing container on your local machine\nPath to a directory to build from a sandbox\nPath to a Apptainer definition file\n\n\n\n1.3 Examples\n# build a sif from dockerhub\napptainer build lolcow.sif docker://godlovedc/lolcow\n# build a sandbox from dockerhub\napptainer build --sandbox lolcow.simg docker://godlovedc/lolcow\n# change simg to sif\napptainer build lolcow.sif lolcow.simg/\n# build from definition file\napptainer build lolcow.sif lolcow.def\nThe --force argument overwrites existing files.\n\n\n1.4 Environment\nSome useful environment variables to control during build.\nexport APPTAINER_CACHEDIR=${PWD}/.apptainer-cache\nexport APPTAINER_TMPDIR=${PWD}/.apptainer-temp\nmkdir -p $APPTAINER_CACHEDIR $APPTAINER_TMPDIR\n\n\n1.5 Other\nConverting docker image to apptainer sif\ndocker save 96364d28e2de -o ggsashimi.tar\napptainer build --sandbox ggsashimi docker-archive://ggsashimi.tar\napptainer build ggsashimi.sif ggsashimi\nCustom remote repositories can be specified\napptainer remote add --no-login SylabsCloud cloud.sycloud.io\napptainer remote list"
+  },
+  {
+    "objectID": "index.html#definition",
+    "href": "index.html#definition",
+    "title": "Apptainer",
+    "section": "2 Definition",
+    "text": "2 Definition\nImages can be built from definition files. These are blueprints to build an image similar to a Dockerfile. This is a text file with header and sections.\n\n2.1 Header\nDefines the starting point for the image build. For example;\nBootstrap: docker\nFrom: debian:7\n\n\n2.2 Sections\n\n\n\n\n\n\n\nSection\nDescription\n\n\n\n\n%setup\nRun on host after header\n\n\n%files\nCopy files from host to container\n\n\n%environment\nDefine env variables used in container\n\n\n%post\nRun in container after header\n\n\n%runscript\nRun during apptainer run\n\n\n%test\nRun a test script\n\n\n%labels\nAdds labels to container. Available through apptainer inspect\n\n\n%help\nText description for users"
+  },
+  {
+    "objectID": "index.html#running-containers",
+    "href": "index.html#running-containers",
+    "title": "Apptainer",
+    "section": "3 Running containers",
+    "text": "3 Running containers\nThere are many different ways to run an apptainer image.\n\nrun: Runs command specified under %runscript\nexec: Runs any custom command\nshell: Enters the container for interactive use\ninstance start: Used to run container in the background"
+  },
+  {
+    "objectID": "index.html#bind-and-mounts",
+    "href": "index.html#bind-and-mounts",
+    "title": "Apptainer",
+    "section": "4 Bind and mounts",
+    "text": "4 Bind and mounts\nBinds allow the container to access host files and folders.\nThe following paths are automatically mounted to containers:\n\n$HOME\n$PWD\n/tmp\n/proc\n/sys\n/dev\n\nBind is specified from host to container. This allows to read from host.\n--bind /data:/mnt\n--bind together with --writable to save changes back to host. In this case the mounted path in container must already exist.\nIn practice, this depends on what the administrator has enabled on a specific cluster."
+  },
+  {
+    "objectID": "index.html#environment-and-metadata",
+    "href": "index.html#environment-and-metadata",
+    "title": "Apptainer",
+    "section": "5 Environment and metadata",
+    "text": "5 Environment and metadata\napptainer inspect shows container definitions, labels etc\napptainer inspect --labels --runscript --test --environment --helpfile\n--cleanenv/-e disables the transfer of host env into the container env"
+  },
+  {
+    "objectID": "index.html#tips",
+    "href": "index.html#tips",
+    "title": "Apptainer",
+    "section": "6 Tips",
+    "text": "6 Tips\n\nDo not use common binds for installation: /home, /tmp\nAdd help to provide the user with run instructions\nUse a definition file for reproducibility"
+  },
+  {
+    "objectID": "index.html#acknowledgements",
+    "href": "index.html#acknowledgements",
+    "title": "Apptainer",
+    "section": "7 Acknowledgements",
+    "text": "7 Acknowledgements\n\nApptainer documentation\nHSF Training\nSingularity on UPPMAX"
+  }
+]
